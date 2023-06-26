@@ -1,0 +1,245 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+{% block title %}
+Chat
+{% endblock %}
+{% block body %}
+<div id="chatting">
+</div>
+<script type="text/babel">
+    // Create a context to share the state
+
+    function Chat() {
+        const [pdf, setPdf] = React.useState({
+            title: "",
+            maximum_pages: 24,
+            current_page: 1,
+            content: '',
+            font_size: 18,
+        });
+
+        React.useEffect(() => {
+            fetch('{% url "getpdf" %}', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })  // Replace with the actual API endpoint URL
+                .then(response => response.json())
+                .then(data => setPdf({
+                    title: data.pdf_contents.title,
+                    maximum_pages: data.pdf_contents.number_of_pages,
+                    current_page: 1,
+                    content: data.pdf_contents.content,
+                    font_size: 18,
+                }))
+                .catch(error => console.error('Error:', error));
+        }, []);
+
+        const updateFont = (newPdf) => {
+            setPdf(newPdf);
+        }
+        return (
+            <React.Fragment>
+                <App pdf={pdf} changeFont={updateFont} />
+                <Chatbot pdf={pdf} />
+            </React.Fragment>
+        );
+    }
+
+    function App({ pdf, changeFont }) {
+        const updateFont = (newPdf) => {
+            changeFont(newPdf);
+        }
+        return (
+            <div id="pdfdisplay">
+                <React.Fragment>
+                    <Header pdf={pdf} changeFont={updateFont} />
+                    <Content pdf={pdf} />
+                    <Footer pdf={pdf} />
+                </React.Fragment>
+            </div>
+        );
+    }
+
+    function Header({ pdf, changeFont }) {
+        const increaseFont = () => {
+            if (pdf.font_size <= 34) {
+                changeFont({
+                    ...pdf,
+                    font_size: pdf.font_size + 2,
+                })
+            }
+        }
+        const decreaseFont = () => {
+            if (pdf.font_size >= 8) {
+                changeFont({
+                    ...pdf,
+                    font_size: pdf.font_size - 2,
+                })
+            }
+        }
+        var font_percentage = (pdf.font_size / 18) * 100;
+        font_percentage = font_percentage.toFixed(1);
+        return (
+            <div id="pdfdisplay_header">
+                <div>
+                    <img src="{% static 'images/threelines.png' %}" alt="" />
+                    <p id="pdftitle">{pdf.title}</p>
+                </div>
+                <div id="changesize">
+                    <p id="pdfpage">{pdf.current_page}/{pdf.maximum_pages}</p>
+                    <button onClick={decreaseFont}><img src="{% static 'images/shrink.png' %}" alt="" /></button>
+                    <div id="size">
+                        <p>{font_percentage}%</p>
+                    </div>
+                    <button onClick={increaseFont}><img src="{% static 'images/expand.png' %}" alt="" /></button>
+                </div>
+            </div>
+        );
+    }
+
+    function Content({ pdf }) {
+        const styleObj = {
+            fontSize: pdf.font_size,
+        }
+        return (
+            <div id="content" style={styleObj}>
+                <p>{pdf.content}</p>
+            </div >
+        );
+    }
+
+    function Footer({ pdf }) {
+        return (
+            <div id="pdf_footer">
+                <a href="" id="sign_in">Sign in</a>
+                <div>
+                    <a class="footerlink" href="">Home</a>
+                    <a class="footerlink" href="">Account</a>
+                    <a class="footerlink" href="">API</a>
+                    <a class="footerlink" href="">FAQ</a>
+                </div>
+            </div>
+        );
+    }
+
+    function Chatheading({ pdf }) {
+        return (
+            <div id="chat_header">
+                <p></p>
+                <p id="chat_heading">Chat with {pdf.title}</p>
+                <div>
+                    <a href=""><img src="{% static 'images/share.png' %}" alt="" /></a>
+                    <a href=""><img src="{% static 'images/download.png' %}" alt="" /></a>
+                    <a href=""><img src="{% static 'images/refresh.png' %}" alt="" /></a>
+                    <a href=""><img src="{% static 'images/delete.png' %}" alt="" /></a>
+                </div>
+            </div>
+        );
+    }
+    function Chatbox({ messages }) {
+        return (
+            <div id="chatbox">
+                {messages.map((message, i) => {
+                    if (message.byUser === true) {
+                        return (
+                            <div key={i} class="mymessage">
+                                <p>{message.content}</p>
+                            </div>
+                        )
+                    } else {
+                        return (
+                            <div key={i} class="response">
+                                <p>{message.content}</p>
+                            </div>
+                        )
+                    }
+                })}
+            </div>
+        );
+    }
+
+    function Input({ messages, addmessage, add_first_message }) {
+        const [inputValue, setInputValue] = React.useState('');
+        const [buttondisplay, setbuttondisplay] = React.useState('Block');
+        const handleMessageSubmit = (e) => {
+            e.preventDefault();
+            if (inputValue.trim() !== '') {
+                addmessage(inputValue);
+                setInputValue('');
+            }
+        }
+        const read_PDF = () => {
+            add_first_message();
+            setbuttondisplay('None')
+        }
+        const styleobj = {
+            display: buttondisplay,
+        }
+        return (
+            <div>
+                <button id="Readpdfbutton" onClick={read_PDF} style={styleobj} >Read PDF</button>
+                <form onSubmit={handleMessageSubmit}>
+                    <input
+                        id="input"
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        placeholder="Ask any questions..."
+                    />
+                    <button id="form_submit"><img src="{% static 'images/send.png' %}" alt="" /></button>
+                </form>
+            </div >
+        );
+    }
+
+    function Chatbot({ pdf }) {
+
+        const [Messages, setMessages] = React.useState([]);
+        const addmessage = (newmessage) => {
+            console.log('Messages:', Messages);
+            console.log(newmessage);
+            fetch('/api/chatting/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ msg: newmessage })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data.reply);
+                    setMessages([
+                        ...Messages, {
+                            content: newmessage,
+                            byUser: true,
+                        }, {
+                            content: data.reply,
+                            byUser: false,
+                        }
+                    ]);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+        }
+        const add_first_message = () => {
+            addmessage(pdf.content);
+        }
+        return (
+            <div id="chatbot">
+                <React.Fragment>
+                    <Chatheading pdf={pdf} />
+                    <Chatbox messages={Messages} />
+                    <Input messages={Messages} addmessage={addmessage} add_first_message={add_first_message} />
+                </React.Fragment>
+            </div>
+        );
+    }
+    ReactDOM.render(<Chat />,
+        document.querySelector("#chatting")
+    );
+</script>
+{% endblock %}

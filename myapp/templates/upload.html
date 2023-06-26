@@ -1,0 +1,145 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <style>
+    .p1 {
+      color: red;
+    }
+
+    .p2 {
+      color: blue;
+    }
+  </style>
+</head>
+
+<body>
+  {% block content %} {% load crispy_forms_tags %}
+  <div class="container">
+    <div id="chathistory" style="
+          position: fixed;
+          top: 80;
+          left: 0;
+          bottom: 150;
+          right: 0;
+          overflow: auto;
+          margin: auto;
+          margin-top: 30px;
+        "></div>
+    <form id="qwer">
+      <!-- {% csrf_token %} -->
+      <div id="fixed" style="position: fixed; bottom: 30">
+        <div id="div_id_msg" class="form-group">
+          <input type="text" name="msg" class="textinput textInput form-control" id="id_msg" />
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </div>
+    </form>
+
+    <form method="post" enctype="multipart/form-data" action="{% url 'index' %}">
+      {% csrf_token %}
+
+      <div class="form-row mt-4">
+        <div class="col-6">
+          <label for="file" class="btn btn-outline-secondary w-100 mb-0">Browse File...</label>
+          <input id="file" type="file" name="file" class="d-none" />
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-outline-primary">
+            Upload file
+          </button>
+        </div>
+      </div>
+    </form>
+    {% if url %}
+    <p>Uploaded file: <a href="{{ url }}">{{url}}</a></p>
+    {% endif %}
+  </div>
+
+  <script>
+    var new_width = $('#qwer').width()
+    $('#fixed').width(new_width)
+    $('#chathistory').width(new_width)
+    window.addEventListener(
+      'resize',
+      function (event) {
+        var new_width = $('#qwer').width()
+        $('#fixed').width(new_width)
+        $('#chathistory').width(new_width)
+      },
+      true
+    )
+  </script>
+  <script>
+    $("input[name='file']").change(function () {
+      var fileName = $(this).val().split('/').pop().split('\\').pop()
+      console.log(fileName)
+      $("label").text(fileName)
+    })
+  </script>
+
+  <script type="text/javascript">
+    $('#qwer').submit(function (e) {
+      e.preventDefault()
+      var doc = document.getElementById('chathistory')
+      var notes = null
+
+      var data = $(this).serializeArray()
+
+      const user_speech = document.createElement('p')
+      user_speech.className = 'p1'
+      const node = document.createTextNode("Customer: " + data[0].value)
+      user_speech.appendChild(node)
+      const element = document.getElementById('chathistory')
+      element.appendChild(user_speech)
+
+      $('#id_msg').val('')
+
+      chatlog = ''
+      for (var i = 0; i < doc.childNodes.length; i++) {
+        if (doc.childNodes[i].className == 'p1') {
+          chatlog += 'Customer:' + doc.childNodes[i].innerHTML + '\\n'
+        }
+        if (doc.childNodes[i].className == 'p2') {
+          chatlog += 'You:' + doc.childNodes[i].innerHTML + '\\n'
+        }
+      }
+      chatlog += 'You:'
+
+      // chatlog += "Customer:" + doc.childNodes[doc.childNodes.length - 1].innerHTML + '\\n';
+      // chatlog += "Agent:"
+      $.ajax({
+        type: 'POST',
+        url: '/api/chatting_tuned/',
+        data: { msg: chatlog },
+        success: function (data) {
+          // console.log(data.reply);
+          const bot = document.createElement('p')
+          bot.className = 'p2'
+          const node1 = document.createTextNode("Bot: " + data.reply)
+          bot.appendChild(node1)
+          const element1 = document.getElementById('chathistory')
+          element1.appendChild(bot)
+          var messageBody = document.getElementById('chathistory')
+          messageBody.scrollTop =
+            messageBody.scrollHeight - messageBody.clientHeight
+        }
+      })
+      //
+      var messageBody = document.getElementById('chathistory')
+      messageBody.scrollTop =
+        messageBody.scrollHeight - messageBody.clientHeight
+    })
+  </script>
+
+  {% endblock %}
+</body>
+
+</html>

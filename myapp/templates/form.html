@@ -1,0 +1,34 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+</head>
+<body>
+  <div class="container">
+    {% block content %}
+    {% load crispy_forms_tags %}
+    <form method="post" id = "qwer">
+        {% csrf_token %}
+        {{ form.body|as_crispy_field }}
+        <div id="fixed" style="position: fixed; bottom: 30;">
+            {{ form.msg|as_crispy_field }}
+            <button type="submit" class="btn btn-primary">Send</button>
+        </div>
+      </form>
+    {% endblock %}
+  </div>
+  <script>
+    var new_width = $('#qwer').width();
+    $('#fixed').width(new_width); 
+    $('#chathistory').width(new_width);
+    window.addEventListener('resize', function(event) {
+        var new_width = $('#qwer').width();
+        $('#fixed').width(new_width);
+        $('#chathistory').width(new_width);
+    }, true);
+  </script>
+</body>
+</html>

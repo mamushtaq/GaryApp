@@ -1,0 +1,90 @@
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <style>
+    .p1 {
+      color: red
+    }
+
+    .p2 {
+      color: blue
+    }
+  </style>
+</head>
+
+<body>
+  {% block content %}
+  {% load crispy_forms_tags %}
+  <div class="container">
+    <div id="chathistory"
+      style="position: fixed; top: 0; left: 0; bottom: 150; right: 0; overflow: auto; margin: auto; margin-top: 30px;">
+    </div>
+    <form id="qwer">
+      <!-- {% csrf_token %} -->
+      <div id="fixed" style="position: fixed; bottom: 30;">
+        <div id="div_id_msg" class="form-group">
+          <input type="text" name="msg" class="textinput textInput form-control" id="id_msg">
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </div>
+    </form>
+  </div>
+  <script>
+    var new_width = $('#qwer').width();
+    $('#fixed').width(new_width);
+    $('#chathistory').width(new_width);
+    window.addEventListener('resize', function (event) {
+      var new_width = $('#qwer').width();
+      $('#fixed').width(new_width);
+      $('#chathistory').width(new_width);
+    }, true);
+  </script>
+  <script type="text/javascript">
+    $("#qwer").submit(function (e) {
+
+      e.preventDefault();
+
+      var data = $(this).serializeArray();
+
+      const user_speech = document.createElement("p");
+      user_speech.className = "p1"
+      const node = document.createTextNode(data[0].value);
+      user_speech.appendChild(node);
+      const element = document.getElementById("chathistory");
+      element.appendChild(user_speech);
+
+      $("#id_msg").val("");
+
+      $.ajax({
+        type: "POST",
+        url: "/api/chatting/",
+        data: { msg: data[0].value },
+        success: function (data) {
+          console.log(data.reply);
+          const bot = document.createElement("p");
+          bot.className = "p2"
+          const node1 = document.createTextNode(data.reply);
+          bot.appendChild(node1);
+          const element1 = document.getElementById("chathistory");
+          element1.appendChild(bot);
+          var messageBody = document.getElementById('chathistory');
+          messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight;
+        }
+      });
+
+      var messageBody = document.getElementById('chathistory');
+      messageBody.scrollTop = messageBody.scrollHeight - messageBody.clientHeight;
+
+    });
+  </script>
+
+  {% endblock %}
+
+</body>
+
+</html>

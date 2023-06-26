@@ -1,0 +1,16 @@
+# Django #
+*.log
+*.pot
+*.pyc
+__pycache__
+db.sqlite3
+media
+venv
+static/*.mp3
+static/dset/*.mp3
+utils/*.txt
+# Environment & Credentials #
+.env
+token.json
+credentials.json
+vox_credentials.json

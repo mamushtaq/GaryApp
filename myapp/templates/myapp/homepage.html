@@ -1,0 +1,219 @@
+{% extends 'myapp/base.html' %}
+{% load static %}
+{% block title %}
+home
+{% endblock %}
+{% block body %}
+<section id="home"></section>
+<script type="text/babel">
+    function Header() {
+        const [heading, setheading] = React.useState("Upload your PDFs")
+        const [selectedFile, setSelectedFile] = React.useState(null);
+
+        const handleFileChange = (event) => {
+            setSelectedFile(event.target.files[0]);
+            setheading("Click Here to upload");
+        };
+
+        const handleUpload = () => {
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            axios
+                .post('{% url "upload_pdf" %}', formData)
+                .then((response) => {
+                    console.log('File uploaded successfully');
+                })
+                .catch((error) => {
+                    console.error('Error uploading file', error);
+                });
+        };
+
+
+        return (
+            <div id="home2">
+                <header>
+                    <img id="logo" src='{% static "images/logo.png" %}' alt="logo" />
+                </header>
+                <section>
+                    <div>
+                        <h1 id="chat_with_pdfs">Chat with your PDFs</h1>
+                    </div>
+                    <div class="buttons">
+                        <a id="discord" href="http://">
+                            <img src="{% static 'images/discord.png' %}" alt="discord" />
+                            Join Discord
+                        </a>
+                        <a id="twitter" href="http://">
+                            <img src="{% static 'images/twitter.png' %}" alt="twitter" />
+                            Post to Twitter
+                        </a>
+                        <a id="facebook" href="http://">
+                            <img src="{% static 'images/facebook.png' %}" alt="facebook" />
+                            Share on Facebook
+                        </a>
+                    </div>
+                </section>
+                <form>
+                    <input id="inputfile" type="file" name="file" onChange={handleFileChange} />
+                    <button id="uploadfile" onClick={handleUpload}>
+                        <img src="{% static 'images/pdf.png' %}" alt="upload" />
+                        <h2>{heading}</h2>
+                        <p>Or</p>
+                        <p id="browsehere">Browse here</p>
+                    </button>
+                </form>
+                <div id="bgimagecontainer">
+                    <img src="{% static 'images/bgimage.png' %}" alt="" id="bgimage" />
+                </div>
+            </div >
+        );
+    }
+
+
+    function About() {
+        return (
+            <div id="aboutdiv">
+                <div class="for_desc">
+                    <div class="desc_heading">
+                        <p>For Lawyer</p>
+                        <img src="{% static 'images/lawyer.png' %}" alt="" />
+                    </div>
+                    <div class="desc">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis,
+                        velit sit amet scelerisque luctus, mauris dui semper sapien, ac semper
+                        enim quam eget nibh. Quisque ac lectus ut mauris semper scelerisque.
+                        Donec ac eros eget quam ultricies rutrum. Vivamus eget enim augue.
+                        Pellentesque habitant morbi tristique senectus et netus et malesuada
+                        fames ac turpis egestas. This paragraph uses dummy text to create a
+                        natural-looking block of text. The dummy.
+                    </div>
+                </div>
+                <div class="for_desc">
+                    <div class="desc_heading">
+                        <p>For Work</p>
+                        <img src="{% static 'images/work.png' %}" alt="" />
+                    </div>
+                    <div class="desc">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis,
+                        velit sit amet scelerisque luctus, mauris dui semper sapien, ac semper
+                        enim quam eget nibh. Quisque ac lectus ut mauris semper scelerisque.
+                        Donec ac eros eget quam ultricies rutrum. Vivamus eget enim augue.
+                        Pellentesque habitant morbi tristique senectus et netus et malesuada
+                        fames ac turpis egestas. This paragraph uses dummy text to create a
+                        natural-looking block of text. The dummy.
+                    </div>
+                </div>
+                <div class="for_desc">
+                    <div class="desc_heading">
+                        <p>For Curious Mind</p>
+                        <img src="{% static 'images/mind.png' %}" alt="" />
+                    </div>
+                    <div class="desc">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed mollis,
+                        velit sit amet scelerisque luctus, mauris dui semper sapien, ac semper
+                        enim quam eget nibh. Quisque ac lectus ut mauris semper scelerisque.
+                        Donec ac eros eget quam ultricies rutrum. Vivamus eget enim augue.
+                        Pellentesque habitant morbi tristique senectus et netus et malesuada
+                        fames ac turpis egestas. This paragraph uses dummy text to create a
+                        natural-looking block of text. The dummy.
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    function Working() {
+        return (
+            <div id="how_it_works">
+                <h1>How it works</h1>
+                <div>
+                    <img src="{% static 'images/howitworks.png' %}" alt="" />
+                </div>
+                <div id="process">
+                    <div class="process_section">
+                        <img src="{% static 'images/uploadfile.png' %}" alt="" />
+                        <p>Upload your File</p>
+                    </div>
+                    <div class="process_section">
+                        <img src="{% static 'images/chat.png' %}" alt="" />
+                        <p>Chat With Bill01</p>
+                    </div>
+                    <div class="process_section">
+                        <img src="{% static 'images/searchusacode.png' %}" alt="" />
+                        <p>Search USA Code</p>
+                    </div>
+                    <div class="process_section">
+                        <img src="{% static 'images/shareyourwork.png' %}" alt="" />
+                        <p>Share Your Work</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    function LetsTry() {
+        return (
+            <div id="lets_try">
+                <div>
+                    <p>A new way to create documents</p>
+                    <p>And Workspaces with</p>
+                    <p id="generativeai">Generative AI</p>
+                    <p id="userfriendly">Made with user-friendliness as a priority.</p>
+                    <a href="http://" id="letstry_button">
+                        <p>Let's try</p>
+                        <img src="{% static 'images/arrow.png' %}" alt="" />
+                    </a>
+                    <div class="buttons" id="footer_buttons">
+                        <a id="discord2" href="http://">
+                            <img src="{% static 'images/discord.png' %}" alt="discord" />
+                            Join Discord
+                        </a>
+                        <a id="twitter2" href="http://">
+                            <img src="{% static 'images/twitter.png' %}" alt="twitter" />
+                            Post to Twitter
+                        </a>
+                        <a id="facebook2" href="http://">
+                            <img src="{% static 'images/facebook.png' %}" alt="facebook" />
+                            Share on Facebook
+                        </a>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    function Footer() {
+        return (
+            <footer>
+                <a class="footerlink" href="">My Account</a>
+                <p class="footerlink">-</p>
+                <a class="footerlink" href="">Pricing</a>
+                <p class="footerlink">-</p>
+                <a class="footerlink" href="">FAQ</a>
+                <p class="footerlink" >-</p>
+                <a class="footerlink" href="">Affiliate</a>
+                <p class="footerlink" >-</p>
+                <a class="footerlink" href="">Twitter</a>
+                <p class="footerlink" >-</p>
+                <a class="footerlink" href="">Contact</a>
+                <p class="footerlink" >-</p>
+                <a class="footerlink" href="">Policy</a>
+                <p class="footerlink" >-</p>
+                <a class="footerlink" href="">Terms</a>
+                <p class="footerlink" >-</p>
+                <a class="footerlink" href="">Imprint</a>
+            </footer>
+        );
+    }
+    ReactDOM.render(
+        <React.Fragment>
+            <Header />
+            <About />
+            <Working />
+            <LetsTry />
+            <Footer />
+        </React.Fragment>,
+        document.querySelector("#home")
+    );
+
+</script>
+{% endblock %}
