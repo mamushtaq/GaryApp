@@ -4,20 +4,27 @@
 home
 {% endblock %}
 {% block body %}
-<section id="home"></section>
+<div id="home"></div>
 <script type="text/babel">
     function Header() {
         const [dragging, setDragging] = React.useState(false);
+        const [inputdisp, setinputdisp] = React.useState("block");
         const [selectedFile, setSelectedFile] = React.useState(null);
         const [heading, setheading] = React.useState("Drag and Drop your file");
+
+        const inputstyle = {
+            display: inputdisp,
+        };
 
         const handleDragEnter = (event) => {
             event.preventDefault();
             setDragging(true);
+            setinputdisp("none");
         };
 
         const handleDragLeave = () => {
             setDragging(false);
+            setinputdisp("block");
         };
 
         const handleDragOver = (event) => {
@@ -27,6 +34,7 @@ home
         const handleDrop = (event) => {
             event.preventDefault();
             setDragging(false);
+            setinputdisp("none");
 
             const droppedFile = event.dataTransfer.files[0];
             setSelectedFile(droppedFile);
@@ -36,6 +44,7 @@ home
         const handleFileChange = (event) => {
             setSelectedFile(event.target.files[0]);
             setheading("Click here to continue");
+            setinputdisp("none");
         };
         const handleUpload = () => {
             const formData = new FormData();
@@ -62,9 +71,9 @@ home
                 <header>
                     <img id="logo" src='{% static "images/logo.png" %}' alt="logo" />
                 </header>
-                <section>
-                    <div>
-                        <h1 id="chat_with_pdfs">Chat with your PDFs</h1>
+                <div id="header_body">
+                    <div id="chat_with_pdfs">
+                        <p>Chat with your PDFs</p>
                     </div>
                     <div class="buttons">
                         <a id="discord" href="http://">
@@ -80,23 +89,25 @@ home
                             Share on Facebook
                         </a>
                     </div>
-                </section>
-                <form className={`file-upload ${dragging ? 'dragging' : ''}`}
-                    onDragEnter={handleDragEnter}
-                    onDragLeave={handleDragLeave}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}>
-                    <input id="inputfile" type="file" name="file" onChange={handleFileChange} />
-                    <a id="uploadfile" onClick={handleUpload} href="{% url 'chat2' %}">
-                        <img src="{% static 'images/pdf.png' %}" alt="upload" />
-                        <h2>{heading}</h2>
-                        <p>Or</p>
-                        <p id="browsehere">Browse here</p>
-                    </a>
-                </form>
-                <div id="bgimagecontainer">
-                    <img src="{% static 'images/bgimage.png' %}" alt="" id="bgimage" />
-                </div>
+                    <div id="uploadfile">
+                        <form className={`file-upload ${dragging ? 'dragging' : ''}`}
+                            onDragEnter={handleDragEnter}
+                            onDragLeave={handleDragLeave}
+                            onDragOver={handleDragOver}
+                            onDrop={handleDrop}>
+                            <input id="inputfile" type="file" name="file" onChange={handleFileChange} style={inputstyle} />
+                            <a onClick={handleUpload} href="{% url 'chat2' %}" id="browsethefiles">
+                                <img src="{% static 'images/pdf.png' %}" alt="upload" />
+                                <h2>{heading}</h2>
+                                <p>Or</p>
+                                <p id="browsehere">Browse here</p>
+                            </a>
+                        </form>
+                    </div>
+                    <div id="bgimagecontainer">
+                        <img src="{% static 'images/bgimage.png' %}" alt="" id="bgimage" />
+                    </div>
+                </div >
             </div >
         );
     }
