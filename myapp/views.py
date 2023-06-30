@@ -13,6 +13,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from PyPDF2 import PdfReader
 from .models import UploadedFile
+from django.http import HttpResponseRedirect
 
 from django.shortcuts import render
 from .forms import ChatForm
@@ -73,21 +74,16 @@ def homepage(request):
 @csrf_exempt
 @api_view(["POST"])
 def upload_pdf(request):
-    context = {}
     try:
-        if request.method == "POST" and request.FILES["file"]:
-            myfile = request.FILES["file"]
-            fs = FileSystemStorage()
-            filename = fs.save(myfile.name, myfile)
-            uploaded_file_url = fs.url(filename)
-
-            initialize_loader(uploaded_file_url)
-            context['url'] = uploaded_file_url
-            return JsonResponse({'message': 'File uploaded successfully'})
+        if request.method == 'POST' and request.FILES.get('file'):
+            file = request.FILES['file']
+            fs = FileSystemStorage(location='media')
+            filename = fs.save(file.name, file)
+            return HttpResponseRedirect('/chat2/')
         else:
             return JsonResponse({'message': 'Invalid request'})
     except Exception as e:
-        return(render(request, 'myapp/chat.html'))
+        return JsonResponse({'message': 'Invalid request'})
 
 
 def read_latest_pdf():

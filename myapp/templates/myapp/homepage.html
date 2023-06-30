@@ -7,29 +7,56 @@ home
 <section id="home"></section>
 <script type="text/babel">
     function Header() {
-        const [heading, setheading] = React.useState("Upload your PDFs")
+        const [dragging, setDragging] = React.useState(false);
         const [selectedFile, setSelectedFile] = React.useState(null);
+        const [heading, setheading] = React.useState("Drag and Drop your file");
+
+        const handleDragEnter = (event) => {
+            event.preventDefault();
+            setDragging(true);
+        };
+
+        const handleDragLeave = () => {
+            setDragging(false);
+        };
+
+        const handleDragOver = (event) => {
+            event.preventDefault();
+        };
+
+        const handleDrop = (event) => {
+            event.preventDefault();
+            setDragging(false);
+
+            const droppedFile = event.dataTransfer.files[0];
+            setSelectedFile(droppedFile);
+            setheading("Click here to continue");
+        };
 
         const handleFileChange = (event) => {
             setSelectedFile(event.target.files[0]);
-            setheading("Click Here to upload");
+            setheading("Click here to continue");
         };
-
         const handleUpload = () => {
             const formData = new FormData();
             formData.append('file', selectedFile);
 
-            axios
-                .post('{% url "upload_pdf" %}', formData)
-                .then((response) => {
-                    console.log('File uploaded successfully');
+            fetch(
+                '{% url "upload_pdf" %}',
+                {
+                    method: 'POST',
+                    body: formData,
+                }
+            )
+                .then((response) => response.json())
+                .then((result) => {
+                    console.log('Success:', result);
+                    setheading("Drag and drop your file");
                 })
                 .catch((error) => {
-                    console.error('Error uploading file', error);
+                    console.error('Error:', error);
                 });
         };
-
-
         return (
             <div id="home2">
                 <header>
@@ -54,14 +81,18 @@ home
                         </a>
                     </div>
                 </section>
-                <form>
+                <form className={`file-upload ${dragging ? 'dragging' : ''}`}
+                    onDragEnter={handleDragEnter}
+                    onDragLeave={handleDragLeave}
+                    onDragOver={handleDragOver}
+                    onDrop={handleDrop}>
                     <input id="inputfile" type="file" name="file" onChange={handleFileChange} />
-                    <button id="uploadfile" onClick={handleUpload}>
+                    <a id="uploadfile" onClick={handleUpload} href="{% url 'chat2' %}">
                         <img src="{% static 'images/pdf.png' %}" alt="upload" />
                         <h2>{heading}</h2>
                         <p>Or</p>
                         <p id="browsehere">Browse here</p>
-                    </button>
+                    </a>
                 </form>
                 <div id="bgimagecontainer">
                     <img src="{% static 'images/bgimage.png' %}" alt="" id="bgimage" />

@@ -8,7 +8,7 @@ Chat
 </div>
 <script type="text/babel">
     // Create a context to share the state
-
+    let spinnerdisp = true;
     function Chat() {
         const [pdf, setPdf] = React.useState({
             title: "",
@@ -138,7 +138,16 @@ Chat
             </div>
         );
     }
-    function Chatbox({ messages }) {
+    function Chatbox({ messages, disp }) {
+        const styleObj = {
+            display: disp,
+        };
+        React.useEffect(() => {
+            const element = document.getElementById('loader');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
         return (
             <div id="chatbox">
                 {messages.map((message, i) => {
@@ -156,6 +165,9 @@ Chat
                         )
                     }
                 })}
+                <div id='loader' style={styleObj}>
+                    <img src="{% static 'images/spinner.png' %}" alt="" />
+                </div>
             </div>
         );
     }
@@ -187,6 +199,7 @@ Chat
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         placeholder="Ask any questions..."
+                        autocomplete="off"
                     />
                     <button id="form_submit"><img src="{% static 'images/send.png' %}" alt="" /></button>
                 </form>
@@ -195,9 +208,10 @@ Chat
     }
 
     function Chatbot({ pdf }) {
-
+        const [disp, setdisp] = React.useState("none");
         const [Messages, setMessages] = React.useState([]);
         const addmessage = (newmessage) => {
+            setdisp("block");
             console.log('Messages:', Messages);
             console.log(newmessage);
             fetch('/api/chatting/', {
@@ -219,11 +233,12 @@ Chat
                             byUser: false,
                         }
                     ]);
+                    setdisp("none");
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    setdisp("none");
                 });
-
         }
         const add_first_message = () => {
             addmessage(pdf.content);
@@ -232,7 +247,7 @@ Chat
             <div id="chatbot">
                 <React.Fragment>
                     <Chatheading pdf={pdf} />
-                    <Chatbox messages={Messages} />
+                    <Chatbox messages={Messages} disp={disp} />
                     <Input messages={Messages} addmessage={addmessage} add_first_message={add_first_message} />
                 </React.Fragment>
             </div>
